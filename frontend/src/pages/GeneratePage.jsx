@@ -70,27 +70,44 @@ const GeneratePage = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto">
-            <div className="mb-8 text-center">
-                <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center gap-2">
-                    <Sparkles className="text-indigo-600" /> AdVantage Gen
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div className="mb-12 text-center max-w-2xl mx-auto">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-electric-50 text-electric-700 text-xs font-bold mb-4 border border-electric-100 uppercase tracking-widest shadow-sm">
+                    <Sparkles className="h-3 w-3 text-electric-600" /> AI-Powered Ad Generation
+                </div>
+                <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight mb-4 font-display">
+                    Create Ads that <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-600 to-electric-300">Convert.</span>
                 </h1>
-                <p className="text-gray-500 mt-2">Create professional ad creatives in seconds with AI.</p>
+                <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                    Transform your brand description into professional ad creatives in seconds with our advanced AI engine.
+                </p>
             </div>
+
             {toast && (
-                <div className={`mb-4 p-3 rounded-md text-sm ${toast.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                    {toast.message}
+                <div className={`fixed bottom-8 right-8 z-50 animate-in slide-in-from-right-10 duration-500`}>
+                    <div className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-premium border ${toast.type === 'success'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-100'
+                        : 'bg-rose-50 text-rose-800 border-rose-100'
+                        }`}>
+                        <div className={`h-2 w-2 rounded-full ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+                        <span className="text-sm font-bold tracking-wide">{toast.message}</span>
+                    </div>
                 </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Design Your Campaign</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                <div className="lg:col-span-5 sticky top-24">
+                    <div className="flex items-center justify-between mb-6 px-1">
+                        <h2 className="text-lg font-bold text-slate-800">Campaign Details</h2>
+                    </div>
                     <PromptForm onSubmit={handleGenerate} isLoading={isLoading} />
                 </div>
-                <div>
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Preview</h2>
-                    <div className="h-[600px]">
+                <div className="lg:col-span-7">
+                    <div className="flex items-center justify-between mb-6 px-1">
+                        <h2 className="text-lg font-bold text-slate-800">Preview Result</h2>
+                        <div className="h-0.5 flex-grow mx-4 bg-slate-100 rounded-full hidden sm:block"></div>
+                    </div>
+                    <div className="min-h-[600px] lg:h-[calc(100vh-320px)] lg:sticky lg:top-24">
                         <AdPreview
                             campaign={campaign}
                             isLoading={isLoading}

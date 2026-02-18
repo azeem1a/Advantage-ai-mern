@@ -14,25 +14,35 @@ const PromptForm = ({ onSubmit, isLoading }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Brand/Product Description</label>
+        <form
+            onSubmit={handleSubmit}
+            className="bg-white/80 p-8 rounded-2xl shadow-premium border border-slate-100 hover:shadow-premium-hover transition-all duration-500 backdrop-blur"
+        >
+            <div className="mb-6">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1">
+                    Brand/Product Description
+                </label>
                 <textarea
                     required
                     maxLength={300}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    rows={3}
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-electric-500/10 focus:border-electric-500 transition-all outline-none resize-none text-slate-800 placeholder:text-slate-400"
+                    rows={4}
                     placeholder="e.g., A sleek coffee maker for busy professionals..."
                     value={formData.prompt}
                     onChange={(e) => setFormData({ ...formData, prompt: e.target.value })}
                 />
+                <div className="flex justify-end mt-1 px-1">
+                    <span className="text-[10px] text-slate-400 font-medium">
+                        {formData.prompt.length}/300
+                    </span>
+                </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tone</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1">Tone</label>
                     <select
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-electric-500/10 focus:border-electric-500 transition-all outline-none text-slate-800 appearance-none cursor-pointer"
                         value={formData.tone}
                         onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
                     >
@@ -43,9 +53,9 @@ const PromptForm = ({ onSubmit, isLoading }) => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1">Platform</label>
                     <select
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-electric-500/10 focus:border-electric-500 transition-all outline-none text-slate-800 appearance-none cursor-pointer"
                         value={formData.platform}
                         onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
                     >
@@ -60,10 +70,16 @@ const PromptForm = ({ onSubmit, isLoading }) => {
             <button
                 type="submit"
                 disabled={isLoading || !formData.prompt.trim()}
-                className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-electric-600 to-electric-400 text-white py-4 px-6 rounded-xl font-bold shadow-lg shadow-electric-500/20 hover:shadow-electric-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 group"
             >
-                {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : <Send className="h-5 w-5" />}
-                {isLoading ? 'Generating Campaign...' : 'Generate Campaign'}
+                {isLoading ? (
+                    <Loader2 className="animate-spin h-5 w-5 text-electric-100" />
+                ) : (
+                    <Send className="h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                )}
+                <span className="tracking-wide">
+                    {isLoading ? 'Generating Campaign...' : 'Generate Campaign'}
+                </span>
             </button>
         </form>
     );

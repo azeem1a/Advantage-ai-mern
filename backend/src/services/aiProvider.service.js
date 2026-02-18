@@ -112,9 +112,6 @@ const tryHuggingFace = async (prompt) => {
 };
 
 /**
- * Provider 2: Nano Banana Pro (Alternative AI provider)
- */
-/**
  * Provider 2: Nano Banana Pro (Gemini 3 Pro Image Preview)
  */
 const tryNanaBanana = async (prompt) => {

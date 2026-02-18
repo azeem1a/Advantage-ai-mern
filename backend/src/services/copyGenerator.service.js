@@ -1,107 +1,97 @@
 const logger = require('../utils/logger');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 /**
- * Tone-specific caption templates and patterns
+ * Tone-specific caption patterns (used as fallbacks or for prompt guidance)
  */
 const tonePatterns = {
     Witty: {
-        captionStarters: [
-            "Don't just scroll, take action! 🚀",
-            "Plot twist: This could be yours! 🎉",
-            "Your feed called... it wants this! ✨",
-            "Warning: May cause serious FOMO! ⚡"
-        ],
-        emojiDensity: 'high',
+        instructions: "Be playful, humorous, and use eye-catching wordplay. High emoji density.",
         ctaOptions: ['Grab Yours!', "Let's Go!", 'Get Started!', 'Join the Fun!']
     },
     Professional: {
-        captionStarters: [
-            "Elevate your business with premium solutions.",
-            "Experience excellence in every detail.",
-            "Transform your vision into reality.",
-            "Where quality meets innovation."
-        ],
-        emojiDensity: 'low',
+        instructions: "Be clean, sophisticated, and authoritative. Low emoji density.",
         ctaOptions: ['Learn More', 'Explore Now', 'Get Started', 'Discover More']
     },
     Urgent: {
-        captionStarters: [
-            "⏰ Limited time offer! Act now before it's gone.",
-            "🔥 Flash Sale: Don't miss out!",
-            "⚡ Hurry! Offer expires soon.",
-            "🚨 Last chance to save big!"
-        ],
-        emojiDensity: 'medium',
+        instructions: "Create a sense of FOMO and immediate action. Medium emoji density.",
         ctaOptions: ['Shop Now', 'Act Now!', 'Claim Offer', 'Limited Time']
     },
     Inspirational: {
-        captionStarters: [
-            "Dream big, achieve more. Your journey starts here. 🌟",
-            "Believe in yourself and make it happen. ✨",
-            "Every great achievement begins with a single step. 🚀",
-            "Your potential is limitless. Start today. 💫"
-        ],
-        emojiDensity: 'medium',
+        instructions: "Be uplifting, aspirational, and motivational. Medium emoji density.",
         ctaOptions: ['Join Us', 'Start Your Journey', 'Begin Today', 'Take Action']
     }
 };
 
 /**
- * Extract key terms from enhanced prompt for hashtag generation
+ * Extract key terms from enhanced prompt for hashtag generation (Fallback)
  */
 const extractKeywords = (prompt) => {
-    // Remove common words and extract meaningful terms
     const commonWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'professional', 'high', 'quality']);
     const words = prompt.toLowerCase()
         .replace(/[^\w\s]/g, ' ')
         .split(/\s+/)
         .filter(word => word.length > 3 && !commonWords.has(word));
 
-    // Return unique words, capitalize first letter
     return [...new Set(words)]
         .slice(0, 3)
         .map(word => word.charAt(0).toUpperCase() + word.slice(1));
 };
 
 /**
- * Generate marketing copy with tone-based variations
+ * Generate marketing copy with AI-powered context awareness
  */
 const generateCopy = async (enhancedPrompt, tone, platform) => {
     try {
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error('GEMINI_API_KEY not configured for copy generation');
+        }
+
         const pattern = tonePatterns[tone] || tonePatterns.Professional;
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        // Select caption
-        const captionIndex = Math.floor(Math.random() * pattern.captionStarters.length);
-        const caption = pattern.captionStarters[captionIndex];
+        const prompt = `
+            You are an expert ${platform} marketing copywriter. 
+            Generate a compelling ad caption for the following product description: "${enhancedPrompt}".
+            Tone: ${tone}.
+            Instructions: ${pattern.instructions}
+            Platform: ${platform}.
+            
+            Return ONLY a JSON object with this structure:
+            {
+                "caption": "Your generated caption here",
+                "hashtags": ["#tag1", "#tag2", ...],
+                "cta": "Appropriate CTA"
+            }
+        `;
 
-        // Generate hashtags
-        const keywords = extractKeywords(enhancedPrompt);
-        const platformTag = `${platform}Ads`;
-        const toneTag = `${tone}Vibes`;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-        const hashtags = [
-            `#${platformTag}`,
-            '#Marketing',
-            '#AdVantageGen',
-            `#${toneTag}`,
-            ...keywords.map(kw => `#${kw}`)
-        ].slice(0, 8); // Limit to 8 hashtags
+        // Clean up response text in case it includes markdown code blocks
+        const cleanedText = text.replace(/```json|```/g, '').trim();
+        const copyData = JSON.parse(cleanedText);
 
-        logger.info(`📝 Generated ${tone} copy for ${platform}`);
+        logger.info(`📝 AI-powered ${tone} copy generated for ${platform}`);
 
         return {
-            caption,
-            hashtags,
-            cta: pattern.ctaOptions[0], // First CTA option for this tone
+            caption: copyData.caption,
+            hashtags: copyData.hashtags.slice(0, 8),
+            cta: copyData.cta || pattern.ctaOptions[0],
             isFallback: false
         };
 
     } catch (error) {
-        logger.warn(`Copy generation failed: ${error.message}. Using fallback.`);
+        logger.warn(`AI Copy generation failed: ${error.message}. Using dynamic fallback.`);
+        const pattern = tonePatterns[tone] || tonePatterns.Professional;
+        const keywords = extractKeywords(enhancedPrompt);
+
         return {
-            caption: 'Discover something amazing today!',
-            hashtags: ['#Ad', '#Marketing', '#New'],
-            cta: 'Learn More',
+            caption: `Experience the best ${keywords[0] || 'solution'} for your needs. Excellence guaranteed.`,
+            hashtags: [`#${platform}Ads`, '#Marketing', ...keywords.map(kw => `#${kw}`)],
+            cta: pattern.ctaOptions[0],
             isFallback: true
         };
     }

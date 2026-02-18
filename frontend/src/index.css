@@ -1,8 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom base styles if needed */
-body {
-  @apply bg-gray-50 text-gray-900;
+:root {
+  --slate-950: #0f172a;
+  --slate-900: #0b1222;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --electric-500: #7a44ff;
+  --electric-400: #946dff;
+  --electric-300: #b098ff;
+  --electric-100: #e5e0ff;
+  --mist-50: #f6f7f9;
+}
+
+@layer base {
+  body {
+    @apply text-slate-900 antialiased;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(122, 68, 255, 0.18), transparent 60%),
+      radial-gradient(900px 400px at 90% 10%, rgba(148, 109, 255, 0.16), transparent 55%),
+      linear-gradient(180deg, #f7f8fb 0%, #eef2f7 45%, #e9eef6 100%);
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.glass-morphism {
+  @apply bg-white/70 backdrop-blur-md border border-white/30 shadow-sm;
+}
+
+.page-fade {
+  animation: pageFade 650ms ease-out both;
+}
+
+.stagger-fade > * {
+  animation: itemRise 700ms ease-out both;
+  animation-delay: calc(var(--stagger-index, 0) * 80ms);
+}
+
+@keyframes pageFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemRise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
